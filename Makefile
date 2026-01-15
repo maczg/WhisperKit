@@ -81,6 +81,17 @@ download-models: setup-model-repo
 	@cd $(MODEL_REPO_DIR) && \
 	git lfs pull
 
+download-tokenizers:
+	@echo "Downloading tokenizers for models found in $(MODEL_REPO_DIR)..."
+	@cd $(MODEL_REPO_DIR) && \
+	for d in openai_whisper-*; do \
+		[ -e "$$d" ] || { echo "No models matching openai_whisper-* found in $(MODEL_REPO_DIR)."; break; }; \
+		model=$$(basename $$d | sed 's/openai_whisper-//'); \
+		file="https://huggingface.co/openai/whisper-$$model/resolve/main/tokenizer.json?download=true"; \
+		dest="./$$d"; \
+		echo "Downloading tokenizer for model $$model into $$dest"; \
+		curl -fL -o "$$dest/tokenizer.json" "$$file"; \
+	done
 
 # Download a specific model
 download-model:
