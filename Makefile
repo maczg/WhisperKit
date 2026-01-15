@@ -100,11 +100,11 @@ download-tokenizer: setup-model-repo
 		echo "Error: MODEL is not set. Usage: make download-tokenizer MODEL=base"; \
 		exit 1; \
 	fi
-	@echo "Downloading tokenizer model $(MODEL)..."
-	@cd "$(MODEL_REPO_DIR)/openai_whisper-$(MODEL)" && \
-	file="https://huggingface.co/openai/whisper-$(MODEL)/resolve/main/tokenizer.json?download=true"; \
-	echo "Downloading tokenizer for model $(MODEL) into ."; \
-	curl -fL -o "tokenizer.json" "$$file";
+	@dest="$(MODEL_REPO_DIR)/openai_whisper-$(MODEL)"; \
+	echo "Downloading tokenizer for model openai_whisper-$(MODEL) into $$dest..."; \
+	curl -fL -o "$$dest/tokenizer.json" "https://huggingface.co/openai/whisper-$(MODEL)/resolve/main/tokenizer.json?download=true"; \
+	echo "Downloading tokenizer config for model openai_whisper-$(MODEL) into $$dest..."; \
+	curl -fL -o "$$dest/tokenizer_config.json" "https://huggingface.co/openai/whisper-$(MODEL)/resolve/main/tokenizer_config.json?download=true" \
 
 # Download a specific model
 download-model:
