@@ -88,10 +88,12 @@ download-tokenizers: setup-model-repo
 	for d in openai_whisper-*; do \
 		[ -e "$$d" ] || { echo "No models matching openai_whisper-* found in $(MODEL_REPO_DIR)."; break; }; \
 		model=$$(basename $$d | sed 's/openai_whisper-//'); \
-		file="https://huggingface.co/openai/whisper-$$model/resolve/main/tokenizer.json?download=true"; \
+		base_model=$$(echo $$model | sed 's/_[0-9]*MB$$//' | sed 's/_turbo$$//' | sed 's/-v[0-9]\{8\}$$//'); \
 		dest="./$$d"; \
-		echo "Downloading tokenizer for model $$model into $$dest"; \
-		curl -fL -o "$$dest/tokenizer.json" "$$file"; \
+		echo "Downloading tokenizer for model $$model (using $$base_model) into $$dest"; \
+		curl -fL -o "$$dest/tokenizer.json" "https://huggingface.co/openai/whisper-$$base_model/resolve/main/tokenizer.json?download=true"; \
+		echo "Downloading tokenizer config for model $$model (using $$base_model) into $$dest"; \
+		curl -fL -o "$$dest/tokenizer_config.json" "https://huggingface.co/openai/whisper-$$base_model/resolve/main/tokenizer_config.json?download=true"; \
 	done
 
 # Download a specific tokenizer
@@ -101,10 +103,11 @@ download-tokenizer: setup-model-repo
 		exit 1; \
 	fi
 	@dest="$(MODEL_REPO_DIR)/openai_whisper-$(MODEL)"; \
-	echo "Downloading tokenizer for model openai_whisper-$(MODEL) into $$dest..."; \
-	curl -fL -o "$$dest/tokenizer.json" "https://huggingface.co/openai/whisper-$(MODEL)/resolve/main/tokenizer.json?download=true"; \
-	echo "Downloading tokenizer config for model openai_whisper-$(MODEL) into $$dest..."; \
-	curl -fL -o "$$dest/tokenizer_config.json" "https://huggingface.co/openai/whisper-$(MODEL)/resolve/main/tokenizer_config.json?download=true" \
+	base_model=$$(echo "$(MODEL)" | sed 's/_[0-9]*MB$$//' | sed 's/_turbo$$//' | sed 's/-v[0-9]\{8\}$$//'); \
+	echo "Downloading tokenizer for model openai_whisper-$(MODEL) (using $$base_model) into $$dest..."; \
+	curl -fL -o "$$dest/tokenizer.json" "https://huggingface.co/openai/whisper-$$base_model/resolve/main/tokenizer.json?download=true"; \
+	echo "Downloading tokenizer config for model openai_whisper-$(MODEL) (using $$base_model) into $$dest..."; \
+	curl -fL -o "$$dest/tokenizer_config.json" "https://huggingface.co/openai/whisper-$$base_model/resolve/main/tokenizer_config.json?download=true"
 
 # Download a specific model
 download-model:
