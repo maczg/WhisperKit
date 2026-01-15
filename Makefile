@@ -81,7 +81,8 @@ download-models: setup-model-repo
 	@cd $(MODEL_REPO_DIR) && \
 	git lfs pull
 
-download-tokenizers:
+# Download tokenizers for all models
+download-tokenizers: setup-model-repo
 	@echo "Downloading tokenizers for models found in $(MODEL_REPO_DIR)..."
 	@cd $(MODEL_REPO_DIR) && \
 	for d in openai_whisper-*; do \
@@ -92,6 +93,18 @@ download-tokenizers:
 		echo "Downloading tokenizer for model $$model into $$dest"; \
 		curl -fL -o "$$dest/tokenizer.json" "$$file"; \
 	done
+
+# Download a specific tokenizer
+download-tokenizer: setup-model-repo
+	@if [ -z "$(MODEL)" ]; then \
+		echo "Error: MODEL is not set. Usage: make download-tokenizer MODEL=base"; \
+		exit 1; \
+	fi
+	@echo "Downloading tokenizer model $(MODEL)..."
+	@cd "$(MODEL_REPO_DIR)/openai_whisper-$(MODEL)" && \
+	file="https://huggingface.co/openai/whisper-$(MODEL)/resolve/main/tokenizer.json?download=true"; \
+	echo "Downloading tokenizer for model $(MODEL) into ."; \
+	curl -fL -o "tokenizer.json" "$$file";
 
 # Download a specific model
 download-model:
